@@ -69,7 +69,8 @@ fn add_mapping(args: &AddMapping, config: &mut Configuration) -> Result<()> {
 }
 
 fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
-    config.redirects.insert(args.from.clone(), args.to.clone());
+    let key = config.map(&args.from);
+    config.redirects.insert(key.to_string(), args.to.clone());
     Ok(write_configuration(config)?)
 }
 
