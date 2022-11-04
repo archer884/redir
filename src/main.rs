@@ -51,6 +51,8 @@ fn run(args: &Args) -> Result<()> {
         return match command {
             Command::AddMapping(args) => add_mapping(args, &mut config),
             Command::AddRedirect(args) => add_redirect(args, &mut config),
+            Command::ListMappings => list_mappings(&config),
+            Command::ListRedirects => list_redirects(&config),
         };
     }
 
@@ -72,6 +74,28 @@ fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
     let key = config.map(&args.from);
     config.redirects.insert(key.to_string(), args.to.clone());
     Ok(write_configuration(config)?)
+}
+
+fn list_mappings(config: &Configuration) -> Result<()> {
+    let mut mappings: Vec<_> = config.mappings.iter().collect();
+    mappings.sort();
+
+    for mapping in mappings {
+        println!("{mapping}");
+    }
+
+    Ok(())
+}
+
+fn list_redirects(config: &Configuration) -> Result<()> {
+    let mut redirects: Vec<_> = config.redirects.iter().collect();
+    redirects.sort();
+
+    for (from, to) in &config.redirects {
+        println!("{from} -> {to}");
+    }
+
+    Ok(())
 }
 
 fn configuration() -> io::Result<Configuration> {

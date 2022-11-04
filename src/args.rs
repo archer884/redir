@@ -23,6 +23,14 @@ pub enum Command {
 
     /// Add a redirect
     AddRedirect(AddRedirect),
+
+    /// List mappings
+    #[command(alias = "lsm")]
+    ListMappings,
+
+    /// List redirects
+    #[command(alias = "lsr")]
+    ListRedirects,
 }
 
 #[derive(Clone, Debug, Parser)]
