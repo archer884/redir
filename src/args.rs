@@ -25,7 +25,7 @@ pub enum Command {
     AddRedirect(AddRedirect),
 
     /// Make a directory and add a redirect to it
-    /// 
+    ///
     /// alias: mkdir
     #[command(alias = "mkdir")]
     MakeRedirect(MakeRedirect),
@@ -58,5 +58,5 @@ pub struct MakeRedirect {
     /// a valid key (mappings will be applied)
     pub from: String,
     /// a subdirectory name
-    pub to: String,
+    pub to: Option<String>,
 }

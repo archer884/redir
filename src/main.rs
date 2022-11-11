@@ -79,9 +79,12 @@ fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
 
 fn make_redirect(args: &MakeRedirect, config: &mut Configuration) -> Result<()> {
     let key = config.map(&args.from);
-    fs::create_dir(&args.to)?;
-    config.redirects.insert(key.to_string(), args.to.clone());
-    Ok(write_configuration(config)?)
+    fs::create_dir(args.to.as_deref().unwrap_or(key))?;
+    if let Some(to) = &args.to {
+        config.redirects.insert(key.to_string(), to.to_string());
+        write_configuration(config)?;
+    }
+    Ok(())
 }
 
 fn list_mappings(config: &Configuration) -> Result<()> {
