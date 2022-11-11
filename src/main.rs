@@ -3,7 +3,7 @@ use std::{fs, io, path::PathBuf, process};
 mod args;
 mod error;
 
-use args::{AddMapping, AddRedirect, Args, Command};
+use args::{AddMapping, AddRedirect, Args, Command, MakeRedirect};
 use directories::ProjectDirs;
 use hashbrown::HashMap;
 use regex::Regex;
@@ -51,6 +51,7 @@ fn run(args: &Args) -> Result<()> {
         return match command {
             Command::AddMapping(args) => add_mapping(args, &mut config),
             Command::AddRedirect(args) => add_redirect(args, &mut config),
+            Command::MakeRedirect(args) => make_redirect(args, &mut config),
             Command::ListMappings => list_mappings(&config),
             Command::ListRedirects => list_redirects(&config),
         };
@@ -72,6 +73,13 @@ fn add_mapping(args: &AddMapping, config: &mut Configuration) -> Result<()> {
 
 fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
     let key = config.map(&args.from);
+    config.redirects.insert(key.to_string(), args.to.clone());
+    Ok(write_configuration(config)?)
+}
+
+fn make_redirect(args: &MakeRedirect, config: &mut Configuration) -> Result<()> {
+    let key = config.map(&args.from);
+    fs::create_dir(&args.to)?;
     config.redirects.insert(key.to_string(), args.to.clone());
     Ok(write_configuration(config)?)
 }
