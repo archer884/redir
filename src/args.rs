@@ -24,6 +24,12 @@ pub enum Command {
     /// Add a redirect
     AddRedirect(AddRedirect),
 
+    /// Make a directory and add a redirect to it
+    /// 
+    /// alias: mkdir
+    #[command(alias = "mkdir")]
+    MakeRedirect(MakeRedirect),
+
     /// List mappings
     #[command(alias = "lsm")]
     ListMappings,
@@ -41,6 +47,14 @@ pub struct AddMapping {
 
 #[derive(Clone, Debug, Parser)]
 pub struct AddRedirect {
+    /// a valid key (mappings will be applied)
+    pub from: String,
+    /// a subdirectory name
+    pub to: String,
+}
+
+#[derive(Clone, Debug, Parser)]
+pub struct MakeRedirect {
     /// a valid key (mappings will be applied)
     pub from: String,
     /// a subdirectory name
