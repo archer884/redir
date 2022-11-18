@@ -25,17 +25,15 @@ pub enum Command {
     AddRedirect(AddRedirect),
 
     /// Make a directory and add a redirect to it
-    ///
-    /// alias: mkdir
-    #[command(alias = "mkdir")]
+    #[command(visible_alias = "mkdir", visible_alias = "m")]
     MakeRedirect(MakeRedirect),
 
     /// List mappings
-    #[command(alias = "lsm")]
+    #[command(visible_alias = "lsm")]
     ListMappings,
 
     /// List redirects
-    #[command(alias = "lsr")]
+    #[command(visible_alias = "lsr")]
     ListRedirects,
 }
 
