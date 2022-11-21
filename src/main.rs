@@ -1,4 +1,4 @@
-use std::{fs, io, path::PathBuf, process};
+use std::{fs, io, path::{PathBuf, Path}, process};
 
 mod args;
 mod error;
@@ -19,7 +19,7 @@ struct Configuration {
 }
 
 impl Configuration {
-    fn map<'a>(&'a self, key: &'a str) -> &'a str {
+    fn map<'a>(&self, key: &'a str) -> &'a str {
         for mapping in &self.mappings {
             if let Some(cx) = Regex::new(mapping).unwrap().captures(key) {
                 // For your edification, dear author:
@@ -34,6 +34,21 @@ impl Configuration {
             }
         }
         key
+    }
+}
+
+struct ConfigPaths {
+    root: PathBuf,
+    file: PathBuf,
+}
+
+impl ConfigPaths {
+    fn from_root(root: impl Into<PathBuf>) -> Self {
+        let root = root.into();
+        Self {
+            file: root.join("config"),
+            root,
+        }
     }
 }
 
@@ -79,12 +94,18 @@ fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
 
 fn make_redirect(args: &MakeRedirect, config: &mut Configuration) -> Result<()> {
     let key = config.map(&args.from);
+    let path = args.to.as_deref().unwrap_or(key);
 
-    fs::create_dir(args.to.as_deref().unwrap_or(key))?;
+    if path_exists(path) {
+        eprintln!("path exists");
+    } else {
+        fs::create_dir(path)?;
+    }
 
     if let Some(to) = &args.to {
         config.redirects.insert(key.to_string(), to.to_string());
         write_configuration(config)?;
+        println!("config added: {}\n -> {}", key, path);
     }
 
     Ok(())
@@ -113,27 +134,29 @@ fn list_redirects(config: &Configuration) -> Result<()> {
 }
 
 fn configuration() -> io::Result<Configuration> {
-    let (config_dir, config_file) = get_config_path();
+    let paths = get_config_paths();
 
-    fs::create_dir_all(&config_dir)?;
+    fs::create_dir_all(&paths.root)?;
 
-    if !config_file.exists() {
+    if !paths.file.exists() {
         return Ok(Configuration::default());
     }
 
-    let config = fs::read_to_string(config_file)?;
+    let config = fs::read_to_string(&paths.file)?;
     Ok(serde_json::from_str(&config)?)
 }
 
 fn write_configuration(config: &Configuration) -> io::Result<()> {
-    let (_, path) = get_config_path();
+    let paths = get_config_paths();
     let serialized = serde_json::to_string_pretty(&config).unwrap();
-    fs::write(path, &serialized)
+    fs::write(&paths.file, &serialized)
 }
 
-fn get_config_path() -> (PathBuf, PathBuf) {
+fn get_config_paths() -> ConfigPaths {
     let dirs = ProjectDirs::from("org", "Hack Commons", "redir").unwrap();
-    let path = dirs.data_dir();
-    let config_file = path.join("config");
-    (path.into(), config_file)
+    ConfigPaths::from_root(dirs.data_dir())
+}
+
+fn path_exists(path: impl AsRef<Path>) -> bool {
+    path.as_ref().exists()
 }
