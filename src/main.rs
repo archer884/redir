@@ -1,4 +1,8 @@
-use std::{fs, io, path::{PathBuf, Path}, process};
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+    process,
+};
 
 mod args;
 mod error;
