@@ -109,7 +109,6 @@ fn make_redirect(args: &MakeRedirect, config: &mut Configuration) -> Result<()> 
     if let Some(to) = &args.to {
         config.redirects.insert(key.to_string(), to.to_string());
         write_configuration(config)?;
-        println!("config added: {}\n -> {}", key, path);
     }
 
     Ok(())
