@@ -39,6 +39,10 @@ impl Configuration {
         }
         key
     }
+
+    fn redirect<'a>(&'a self, key: &'a str) -> &'a str {
+        self.redirects.get(key).map(|s| s.as_ref()).unwrap_or(key)
+    }
 }
 
 struct ConfigPaths {
@@ -98,7 +102,7 @@ fn add_redirect(args: &AddRedirect, config: &mut Configuration) -> Result<()> {
 
 fn make_redirect(args: &MakeRedirect, config: &mut Configuration) -> Result<()> {
     let key = config.map(&args.from);
-    let path = args.to.as_deref().unwrap_or(key);
+    let path = args.to.as_deref().unwrap_or_else(|| config.redirect(key));
 
     if path_exists(path) {
         eprintln!("path exists");
